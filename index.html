@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#050708">
+<title>Triad Matrix</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020506;color:#f7f8fa;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;touch-action:manipulation}
+body{position:fixed;inset:0;overscroll-behavior:none}
+.app{width:100%;height:100svh;max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 10px) 8px calc(env(safe-area-inset-bottom) + 4px);display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;gap:4px;overflow:hidden}
+h1{margin:0;text-align:center;font-size:clamp(22px,6.2vw,30px);line-height:1;font-weight:950;letter-spacing:.3px;white-space:nowrap}.title-accent{color:#22ddeb}.legend{margin:0;text-align:center;color:#eef1f3;font-size:clamp(10px,3vw,14px);line-height:1;font-weight:850;white-space:nowrap}.sharp{color:#2e91ff}.flat{color:#d45cf0}.muted{color:#aab3b9}
+.matrix{min-height:0;display:grid;grid-template-columns:1.52fr repeat(7,minmax(0,1fr));grid-template-rows:repeat(15,minmax(0,1fr));width:100%;border:2px solid #3c494f;border-radius:11px;overflow:hidden;background:#071014}.cell{min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;text-align:center;border-right:1.5px solid #3c494f;border-bottom:1.5px solid #3c494f;background:#071014;padding:0 1px;font-size:clamp(11px,3.25vw,15px);font-weight:900;line-height:1;overflow:hidden;white-space:nowrap}.cell:nth-child(8n){border-right:0}.matrix>.cell:nth-last-child(-n+8){border-bottom:0}.header{background:#091216;font-size:clamp(12px,3.5vw,16px)}.corner{font-size:clamp(10px,3vw,14px)}.label{background:#091216;color:#22ddeb;font-size:clamp(9px,2.65vw,12px);font-weight:950}.guide{background:#081115;font-size:clamp(12px,3.4vw,16px)}.keycell{flex-direction:column;justify-content:center;gap:4px;background:#081115;font-size:clamp(10.5px,3.1vw,14px);line-height:1}.keycell small{font-size:clamp(10px,3vw,14px);line-height:1;font-weight:950}.chordcell{font-size:clamp(11px,3.3vw,15px);cursor:pointer}.chordcell:active{filter:brightness(1.35)}.chordcell.selected{background:#071014;outline:3px solid #ffd84d;outline-offset:-3px;position:relative;z-index:2}
+.detail{padding:4px 7px 3px;border:2px solid #3c494f;border-radius:11px;background:#071014;display:grid;grid-template-columns:1fr 1.8fr;grid-template-areas:"title title" "tones tones" "intervals scale" "meta meta" "control control";gap:3px 7px;overflow:hidden}.detail-title{grid-area:title;text-align:center;font-size:clamp(14px,4vw,18px);line-height:1;font-weight:950;margin:0}.tones{grid-area:tones;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.tone{height:42px;border:1.5px solid #3c494f;border-radius:8px;background:#091216;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}.tone.acc{border-color:#3c494f}.role{font-size:clamp(9px,2.7vw,12px);color:#22ddeb;font-weight:950}.big-note{font-size:clamp(22px,6vw,30px);line-height:.9;font-weight:950;margin:0}.section{color:#22ddeb;font-size:clamp(9px,2.6vw,12px);line-height:1;font-weight:950;text-align:center;margin:0 0 3px}.three,.seven{display:grid;gap:4px}.three{grid-template-columns:repeat(3,1fr)}.seven{grid-template-columns:repeat(7,1fr)}.pill{height:27px;border:1.5px solid #3c494f;border-radius:6px;background:#091216;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(12px,3.4vw,15px);line-height:1;font-weight:950}.interval-wrap{grid-area:intervals}.scale-wrap{grid-area:scale}.meta{grid-area:meta;margin:0;border:0;padding:0;display:grid;grid-template-columns:1fr 1.25fr;gap:7px;color:#22ddeb;font-size:clamp(9px,2.6vw,12px);line-height:1;text-align:center;font-weight:950}.metaBox{border:1.5px solid #3c494f;border-radius:7px;background:#091216;padding:4px 3px}.meta strong{display:block;margin-top:3px;color:#f7f8fa;font-size:clamp(12px,3.5vw,16px);line-height:1.05}.triad-control{grid-area:control;width:100%;height:36px;border:2px solid #22ddeb;border-radius:20px;background:#071014;color:#22ddeb;font:950 clamp(19px,5.5vw,25px)/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;display:grid;grid-template-columns:48px 1fr 48px;align-items:center;padding:0 5px;touch-action:manipulation}.triad-control .arrow{font-size:29px;line-height:1}.triad-control .type{font-size:inherit}.triad-control:active{background:#0c252b}
+@media(max-height:760px){.app{padding-top:calc(env(safe-area-inset-top) + 10px);gap:3px}h1{font-size:18px}.legend{font-size:9px}.keycell{gap:2px}.detail{padding:3px 6px;gap:3px 6px}.tone{height:36px}.big-note{font-size:21px}.pill{height:22px}.triad-control{height:32px}.metaBox{padding:2px}.meta strong{margin-top:1px}}
+</style>
+</head>
+<body>
+<main class="app">
+  <h1>TRIAD <span class="title-accent">MATRIX</span></h1>
+  <div class="legend">X = DEGREE &nbsp; • &nbsp; Y = KEY &nbsp; • &nbsp; <span class="sharp">♯ SHARP</span> &nbsp; <span class="flat">♭ FLAT</span></div>
+
+  <section class="matrix" aria-label="Triad matrix">
+    <div class="cell header corner">KEY<br>↓</div>
+<div class="cell header">I</div>
+<div class="cell header">ii</div>
+<div class="cell header">iii</div>
+<div class="cell header">IV</div>
+<div class="cell header">V</div>
+<div class="cell header">vi</div>
+<div class="cell header">vii°</div>
+<div class="cell label notes-label">NOTES</div>
+<div class="cell guide">C</div>
+<div class="cell guide">D</div>
+<div class="cell guide">E</div>
+<div class="cell guide">F</div>
+<div class="cell guide">G</div>
+<div class="cell guide">A</div>
+<div class="cell guide">B</div>
+<div class="cell label">INTERVALS</div>
+<div class="cell guide">1</div>
+<div class="cell guide">2</div>
+<div class="cell guide">3</div>
+<div class="cell guide">4</div>
+<div class="cell guide">5</div>
+<div class="cell guide">6</div>
+<div class="cell guide">7</div>
+<div class="cell keycell"><div>C major</div><small class="sharp">no ♯/♭</small></div>
+<div class="cell chordcell">C</div>
+<div class="cell chordcell">Dm</div>
+<div class="cell chordcell">Em</div>
+<div class="cell chordcell">F</div>
+<div class="cell chordcell">G</div>
+<div class="cell chordcell">Am</div>
+<div class="cell chordcell">B°</div>
+<div class="cell keycell"><div>G major</div><small class="sharp">1 ♯</small></div>
+<div class="cell chordcell">G</div>
+<div class="cell chordcell">Am</div>
+<div class="cell chordcell">Bm</div>
+<div class="cell chordcell">C</div>
+<div class="cell chordcell">D</div>
+<div class="cell chordcell">Em</div>
+<div class="cell chordcell"><span class="sharp">F♯°</span></div>
+<div class="cell keycell"><div>D major</div><small class="sharp">2 ♯</small></div>
+<div class="cell chordcell">D</div>
+<div class="cell chordcell">Em</div>
+<div class="cell chordcell"><span class="sharp">F♯m</span></div>
+<div class="cell chordcell">G</div>
+<div class="cell chordcell">A</div>
+<div class="cell chordcell">Bm</div>
+<div class="cell chordcell"><span class="sharp">C♯°</span></div>
+<div class="cell keycell"><div>A major</div><small class="sharp">3 ♯</small></div>
+<div class="cell chordcell">A</div>
+<div class="cell chordcell">Bm</div>
+<div class="cell chordcell"><span class="sharp">C♯m</span></div>
+<div class="cell chordcell">D</div>
+<div class="cell chordcell">E</div>
+<div class="cell chordcell"><span class="sharp">F♯m</span></div>
+<div class="cell chordcell"><span class="sharp">G♯°</span></div>
+<div class="cell keycell"><div>E major</div><small class="sharp">4 ♯</small></div>
+<div class="cell chordcell">E</div>
+<div class="cell chordcell"><span class="sharp">F♯m</span></div>
+<div class="cell chordcell"><span class="sharp">G♯m</span></div>
+<div class="cell chordcell">A</div>
+<div class="cell chordcell">B</div>
+<div class="cell chordcell"><span class="sharp">C♯m</span></div>
+<div class="cell chordcell"><span class="sharp">D♯°</span></div>
+<div class="cell keycell"><div>B major</div><small class="sharp">5 ♯</small></div>
+<div class="cell chordcell">B</div>
+<div class="cell chordcell"><span class="sharp">C♯m</span></div>
+<div class="cell chordcell"><span class="sharp">D♯m</span></div>
+<div class="cell chordcell">E</div>
+<div class="cell chordcell"><span class="sharp">F♯</span></div>
+<div class="cell chordcell"><span class="sharp">G♯m</span></div>
+<div class="cell chordcell"><span class="sharp">A♯°</span></div>
+<div class="cell keycell"><div><span class="sharp">F♯</span> major</div><small class="sharp">6 ♯</small></div>
+<div class="cell chordcell"><span class="sharp">F♯</span></div>
+<div class="cell chordcell"><span class="sharp">G♯m</span></div>
+<div class="cell chordcell"><span class="sharp">A♯m</span></div>
+<div class="cell chordcell">B</div>
+<div class="cell chordcell"><span class="sharp">C♯</span></div>
+<div class="cell chordcell"><span class="sharp">D♯m</span></div>
+<div class="cell chordcell"><span class="sharp">E♯°</span></div>
+<div class="cell keycell"><div>F major</div><small class="flat">1 ♭</small></div>
+<div class="cell chordcell">F</div>
+<div class="cell chordcell">Gm</div>
+<div class="cell chordcell">Am</div>
+<div class="cell chordcell"><span class="flat">B♭</span></div>
+<div class="cell chordcell">C</div>
+<div class="cell chordcell">Dm</div>
+<div class="cell chordcell">E°</div>
+<div class="cell keycell"><div><span class="flat">B♭</span> major</div><small class="flat">2 ♭</small></div>
+<div class="cell chordcell"><span class="flat">B♭</span></div>
+<div class="cell chordcell">Cm</div>
+<div class="cell chordcell">Dm</div>
+<div class="cell chordcell"><span class="flat">E♭</span></div>
+<div class="cell chordcell">F</div>
+<div class="cell chordcell">Gm</div>
+<div class="cell chordcell">A°</div>
+<div class="cell keycell"><div><span class="flat">E♭</span> major</div><small class="flat">3 ♭</small></div>
+<div class="cell chordcell"><span class="flat">E♭</span></div>
+<div class="cell chordcell">Fm</div>
+<div class="cell chordcell">Gm</div>
+<div class="cell chordcell"><span class="flat">A♭</span></div>
+<div class="cell chordcell"><span class="flat">B♭</span></div>
+<div class="cell chordcell">Cm</div>
+<div class="cell chordcell">D°</div>
+<div class="cell keycell"><div><span class="flat">A♭</span> major</div><small class="flat">4 ♭</small></div>
+<div class="cell chordcell"><span class="flat">A♭</span></div>
+<div class="cell chordcell"><span class="flat">B♭m</span></div>
+<div class="cell chordcell">Cm</div>
+<div class="cell chordcell"><span class="flat">D♭</span></div>
+<div class="cell chordcell"><span class="flat">E♭</span></div>
+<div class="cell chordcell">Fm</div>
+<div class="cell chordcell">G°</div>
+<div class="cell keycell"><div><span class="flat">D♭</span> major</div><small class="flat">5 ♭</small></div>
+<div class="cell chordcell"><span class="flat">D♭</span></div>
+<div class="cell chordcell"><span class="flat">E♭m</span></div>
+<div class="cell chordcell">Fm</div>
+<div class="cell chordcell"><span class="flat">G♭</span></div>
+<div class="cell chordcell"><span class="flat">A♭</span></div>
+<div class="cell chordcell"><span class="flat">B♭m</span></div>
+<div class="cell chordcell">C°</div>
+  </section>
+
+  <section class="detail">
+    <div class="detail-title" id="detailTitle">F MAJOR – ii TRIAD</div>
+
+    <div class="tones">
+      <div class="tone">
+        <div class="role">ROOT</div>
+        <div class="big-note" id="toneRoot">G</div>
+      </div>
+      <div class="tone acc">
+        <div class="role">3RD</div>
+        <div class="big-note flat" id="toneThird">B♭</div>
+      </div>
+      <div class="tone">
+        <div class="role">5TH</div>
+        <div class="big-note" id="toneFifth">D</div>
+      </div>
+    </div>
+
+    <div class="interval-wrap"><div class="section">INTERVALS</div><div class="three" id="intervals"><div class="pill">1</div><div class="pill">♭3</div><div class="pill">5</div></div></div>
+    <div class="scale-wrap"><div class="section" id="scaleTitle">SCALE (F MAJOR)</div><div class="seven" id="scaleNotes"><div class="pill">F</div><div class="pill">G</div><div class="pill">A</div><div class="pill flat">B♭</div><div class="pill">C</div><div class="pill">D</div><div class="pill">E</div></div></div>
+    <div class="meta" id="meta"></div>
+    <button class="triad-control" id="triadTypeBtn" type="button" aria-label="Cycle triad type"><span class="arrow">‹</span><span class="type">MAJ</span><span class="arrow">›</span></button>
+  </section>
+</main>
+
+<script>
+(()=>{
+ const KEYS={
+  'C major':{scale:['C','D','E','F','G','A','B'],sig:'no sharps or flats'},
+  'G major':{scale:['G','A','B','C','D','E','F♯'],sig:'1 sharp (F♯)'},
+  'D major':{scale:['D','E','F♯','G','A','B','C♯'],sig:'2 sharps (F♯, C♯)'},
+  'A major':{scale:['A','B','C♯','D','E','F♯','G♯'],sig:'3 sharps (F♯, C♯, G♯)'},
+  'E major':{scale:['E','F♯','G♯','A','B','C♯','D♯'],sig:'4 sharps (F♯, C♯, G♯, D♯)'},
+  'B major':{scale:['B','C♯','D♯','E','F♯','G♯','A♯'],sig:'5 sharps (F♯, C♯, G♯, D♯, A♯)'},
+  'F♯ major':{scale:['F♯','G♯','A♯','B','C♯','D♯','E♯'],sig:'6 sharps (F♯, C♯, G♯, D♯, A♯, E♯)'},
+  'F major':{scale:['F','G','A','B♭','C','D','E'],sig:'1 flat (B♭)'},
+  'B♭ major':{scale:['B♭','C','D','E♭','F','G','A'],sig:'2 flats (B♭, E♭)'},
+  'E♭ major':{scale:['E♭','F','G','A♭','B♭','C','D'],sig:'3 flats (B♭, E♭, A♭)'},
+  'A♭ major':{scale:['A♭','B♭','C','D♭','E♭','F','G'],sig:'4 flats (B♭, E♭, A♭, D♭)'},
+  'D♭ major':{scale:['D♭','E♭','F','G♭','A♭','B♭','C'],sig:'5 flats (B♭, E♭, A♭, D♭, G♭)'}
+ };
+ const degreeNums=['I','II','III','IV','V','VI','VII'];
+ const triadTypes=[
+  {short:'MAJ',name:'MAJOR',ints:['1','3','5'],steps:[0,4,7]},
+  {short:'MIN',name:'MINOR',ints:['1','♭3','5'],steps:[0,3,7]},
+  {short:'DIM',name:'DIMINISHED',ints:['1','♭3','♭5'],steps:[0,3,6]},
+  {short:'AUG',name:'AUGMENTED',ints:['1','3','♯5'],steps:[0,4,8]}
+ ];
+ let typeIndex=0, activeCell=null;
+ const naturalPc={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+ const letters=['C','D','E','F','G','A','B'];
+ const accidentalValue=n=>(n.match(/♯/g)||[]).length-(n.match(/♭/g)||[]).length;
+ const pitchClass=n=>(naturalPc[n[0]]+accidentalValue(n)+120)%12;
+ const accText=d=>d===0?'':d===1?'♯':d===2?'♯♯':d===-1?'♭':d===-2?'♭♭':'';
+ function spellInterval(root,letterSteps,semitones){
+   const rootLetter=root[0], li=letters.indexOf(rootLetter), targetLetter=letters[(li+letterSteps)%7];
+   const targetPc=(pitchClass(root)+semitones)%12, base=naturalPc[targetLetter];
+   let diff=(targetPc-base+12)%12; if(diff>6)diff-=12;
+   return targetLetter+accText(diff);
+ }
+ const noteHTML=n=> n.includes('♯')?`<span class="sharp">${n}</span>`:n.includes('♭')?`<span class="flat">${n}</span>`:n;
+ const qualitySuffix=t=>t.short==='MAJ'?'':t.short==='MIN'?'m':t.short==='DIM'?'°':'+';
+ function romanForDegree(d,t){
+   const base=degreeNums[d];
+   if(t.short==='MIN') return base.toLowerCase();
+   if(t.short==='DIM') return base.toLowerCase()+'°';
+   if(t.short==='AUG') return base+'+';
+   return base;
+ }
+ const matrix=document.querySelector('.matrix'), cells=[...matrix.children];
+ for(let i=24;i<cells.length;i+=8){
+  const keyCell=cells[i], key=keyCell.firstElementChild.textContent.trim().replace(/\s+/g,' ');
+  for(let d=0;d<7;d++){const c=cells[i+1+d];c.dataset.key=key;c.dataset.degree=d;c.setAttribute('role','button');c.setAttribute('tabindex','0')}
+ }
+ function syncMatrix(){
+  const t=triadTypes[typeIndex];
+  const chordCells=[...document.querySelectorAll('.chordcell')];
+
+  // Rebuild EVERY triad cell (12 key rows × 7 degrees = 84 cells) from the
+  // active triad quality. This deliberately overrides the original diatonic
+  // major/minor/diminished qualities whenever MIN, DIM, or AUG is selected.
+  chordCells.forEach(c=>{
+   const data=KEYS[c.dataset.key];
+   const d=Number(c.dataset.degree);
+   if(!data || !Number.isInteger(d) || d<0 || d>6) return;
+   const root=data.scale[d];
+   c.innerHTML=noteHTML(root)+qualitySuffix(t);
+   c.dataset.quality=t.short;
+   c.setAttribute('aria-label',`${root} ${t.name.toLowerCase()} triad, degree ${d+1} in ${c.dataset.key}`);
+  });
+
+  // All seven degree headings change with the selected triad quality too.
+  const headers=[...document.querySelectorAll('.matrix > .header')].slice(1,8);
+  headers.forEach((h,d)=>h.textContent=romanForDegree(d,t));
+ }
+ function render(){
+  syncMatrix();
+  if(!activeCell)return;
+  const key=activeCell.dataset.key,d=+activeCell.dataset.degree,data=KEYS[key]; if(!data)return;
+  const root=data.scale[d], t=triadTypes[typeIndex];
+  const triad=[root,spellInterval(root,2,t.steps[1]),spellInterval(root,4,t.steps[2])];
+  document.getElementById('detailTitle').innerHTML=`${noteHTML(key.replace(' major',''))} MAJOR — <span class="sharp">${romanForDegree(d,t)}</span>`;
+  [['toneRoot',triad[0]],['toneThird',triad[1]],['toneFifth',triad[2]]].forEach(([id,n])=>{const e=document.getElementById(id);e.innerHTML=noteHTML(n);e.className='big-note'+(n.includes('♯')?' sharp':n.includes('♭')?' flat':'')});
+  document.getElementById('intervals').innerHTML=t.ints.map(x=>`<div class="pill">${x}</div>`).join('');
+  document.getElementById('scaleTitle').innerHTML=`SCALE (${noteHTML(key.replace(' major',''))} MAJOR)`;
+  document.getElementById('scaleNotes').innerHTML=data.scale.map(n=>`<div class="pill">${noteHTML(n)}</div>`).join('');
+  const sigNum = data.sig.startsWith('no ') ? '0' : (data.sig.match(/^\d+/)||['0'])[0];
+  const sigClass = data.sig.includes('flat') ? 'flat' : data.sig.includes('sharp') ? 'sharp' : '';
+  document.getElementById('meta').innerHTML=`<div class="metaBox">KEY SIGNATURE<strong class="${sigClass}">${sigNum}</strong></div><div class="metaBox">TRIAD NOTES<strong>${triad.map(noteHTML).join(' – ')}</strong></div>`;
+  document.querySelector('#triadTypeBtn .type').textContent=t.short;
+  document.getElementById('triadTypeBtn').setAttribute('aria-label',`Triad type ${t.name}. Tap to cycle.`);
+ }
+ function show(cell){document.querySelectorAll('.chordcell.selected').forEach(x=>x.classList.remove('selected'));cell.classList.add('selected');activeCell=cell;render()}
+ matrix.addEventListener('click',e=>{const c=e.target.closest('.chordcell');if(c)show(c)});
+ matrix.addEventListener('keydown',e=>{const c=e.target.closest('.chordcell');if(c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();show(c)}});
+ document.getElementById('triadTypeBtn').addEventListener('click',()=>{
+  typeIndex=(typeIndex+1)%triadTypes.length;
+  syncMatrix();
+  render();
+ });
+ ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+ document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+ let lastTouch=0;document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTouch<300)e.preventDefault();lastTouch=now},{passive:false});
+ const initial=[...document.querySelectorAll('.chordcell')].find(c=>c.dataset.key==='C major'&&c.dataset.degree==='0');if(initial)show(initial);
+})();
+</script>
+</body>
+</html>
